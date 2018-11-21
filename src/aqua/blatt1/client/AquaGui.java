@@ -1,5 +1,7 @@
 package aqua.blatt1.client;
 
+import aqua.blatt1.client.resources.SnapshotController;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class AquaGui extends JFrame implements Runnable, Observer {
 		JMenuItem gsMenuItem = new JMenuItem("Global Snapshot");
 		toolsMenu.add(gsMenuItem);
 
-		gsMenuItem.addActionListener(new NotImplementedYetController(this));
+		gsMenuItem.addActionListener(new SnapshotController(this, tankModel));
 
 		searchMenu = new JMenu("Toggle Fish Color...");
 		toolsMenu.add(searchMenu);

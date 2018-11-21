@@ -76,16 +76,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             if (neighbors.getRightNeighbor() == sender) {
                 backup.rightSaveList = rightSaveList;
                 mode = Mode.IDLE;
-            } else {
-                //marker already finished record for this channel
             }
         } else if (mode == Mode.LEFT) {
             if (neighbors.getLeftNeighbor() == sender) {
                 backup.leftSaveList = leftSaveList;
                 mode = Mode.IDLE;
-            } else {
-                //marker already finished record for this channel
-//                mode = Mode.BOTH;
             }
         } else {
             if (neighbors.getRightNeighbor() == sender) {
