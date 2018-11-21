@@ -1,5 +1,7 @@
 package aqua.blatt1.client;
 
+import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.FishModel;
 import aqua.blatt1.common.msgtypes.NeighborUpdate;
+import messaging.Message;
 
 public class TankModel extends Observable implements Iterable<FishModel> {
 
@@ -21,10 +24,80 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected NeighborUpdate.Neighbors neighbors;
     protected volatile Boolean token = false;
     protected Timer timer = new Timer();
+    protected Mode mode = Mode.IDLE;
+    protected Save backup;
+//    protected List<Message> saveList;
+    protected List<Message> rightSaveList;
+    protected List<Message> leftSaveList;
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
         this.forwarder = forwarder;
+    }
+
+    enum Mode {
+        IDLE, LEFT, RIGHT, BOTH
+    }
+
+    class Save {
+        private int fishCounterBackup;
+        protected List<Message> rightSaveList;
+        protected List<Message> leftSaveList;
+
+        private void addFish() {
+            fishCounterBackup++;
+        }
+
+        Save(int fishCounter) {
+            this.fishCounterBackup = fishCounter;
+        }
+    }
+
+    public synchronized void initiateSnapshot() {
+        backup = new Save(fishCounter);
+        mode = Mode.BOTH;
+        forwarder.sendMarkers(neighbors);
+    }
+
+    void createLocalSnapshot(InetSocketAddress sender) {
+        if (mode == Mode.IDLE) {
+            backup = new Save(fishCounter);
+            if (neighbors.getRightNeighbor() == sender) {
+                leftSaveList = new ArrayList<>();
+                backup.rightSaveList = new ArrayList<>();
+                mode = Mode.LEFT;
+            } else {
+                rightSaveList = new ArrayList<>();
+                backup.leftSaveList = new ArrayList<>();
+                mode = Mode.RIGHT;
+            }
+            forwarder.sendMarkers(neighbors);
+        } else if (mode == Mode.RIGHT) {
+            if (neighbors.getRightNeighbor() == sender) {
+                backup.rightSaveList = rightSaveList;
+                mode = Mode.IDLE;
+            } else {
+                //marker already finished record for this channel
+            }
+        } else if (mode == Mode.LEFT) {
+            if (neighbors.getLeftNeighbor() == sender) {
+                backup.leftSaveList = leftSaveList;
+                mode = Mode.IDLE;
+            } else {
+                //marker already finished record for this channel
+//                mode = Mode.BOTH;
+            }
+        } else {
+            if (neighbors.getRightNeighbor() == sender) {
+                backup.rightSaveList = rightSaveList;
+                mode = Mode.LEFT;
+            } else {
+                backup.leftSaveList = leftSaveList;
+                mode = Mode.RIGHT;
+            }
+            //quit if mode == IDLE
+        }
+
     }
 
     synchronized void onRegistration(String id) {
@@ -44,7 +117,16 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
     }
 
-    synchronized void receiveFish(FishModel fish) {
+    synchronized void receiveFish(InetSocketAddress sender, FishModel fish) {
+        if (mode != Mode.IDLE) {
+            if (mode == Mode.BOTH)
+                backup.addFish();
+            else if (mode == Mode.RIGHT && sender == neighbors.getRightNeighbor())
+                backup.addFish();
+            else if (mode == Mode.LEFT && sender == neighbors.getLeftNeighbor())
+                backup.addFish();
+
+        }
         fish.setToStart();
         fishies.add(fish);
     }

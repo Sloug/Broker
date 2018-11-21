@@ -40,6 +40,11 @@ public class ClientCommunicator {
         public void sendToken(NeighborUpdate.Neighbors neighbors) {
             endpoint.send(neighbors.getRightNeighbor(), new Token());
         }
+
+        public void sendMarkers(NeighborUpdate.Neighbors neighbors) {
+            endpoint.send(neighbors.getRightNeighbor(), new SnapshotMarker());
+            endpoint.send(neighbors.getLeftNeighbor(), new SnapshotMarker());
+        }
     }
 
     public class ClientReceiver extends Thread {
@@ -54,17 +59,32 @@ public class ClientCommunicator {
             while (!isInterrupted()) {
                 Message msg = endpoint.blockingReceive();
 
+                if (tankModel.mode != TankModel.Mode.IDLE) {
+                    if (tankModel.mode == TankModel.Mode.BOTH)
+                        if (tankModel.neighbors.getRightNeighbor() == msg.getSender())
+                            tankModel.rightSaveList.add(msg);
+                        else
+                            tankModel.leftSaveList.add(msg);
+                    else if (tankModel.mode != TankModel.Mode.RIGHT && tankModel.neighbors.getRightNeighbor() == msg.getSender())
+                        tankModel.rightSaveList.add(msg);
+                    else if (tankModel.mode != TankModel.Mode.LEFT && tankModel.neighbors.getLeftNeighbor() == msg.getSender())
+                        tankModel.leftSaveList.add(msg);
+                }
+
                 if (msg.getPayload() instanceof RegisterResponse)
                     tankModel.onRegistration(((RegisterResponse) msg.getPayload()).getId());
 
                 if (msg.getPayload() instanceof HandoffRequest)
-                    tankModel.receiveFish(((HandoffRequest) msg.getPayload()).getFish());
+                    tankModel.receiveFish(msg.getSender(), ((HandoffRequest) msg.getPayload()).getFish());
 
                 if (msg.getPayload() instanceof NeighborUpdate)
                     tankModel.receiveNeighbors(((NeighborUpdate) msg.getPayload()).getNeighbors());
 
                 if (msg.getPayload() instanceof Token)
                     tankModel.receiveToken();
+
+                if (msg.getPayload() instanceof SnapshotMarker)
+                    tankModel.createLocalSnapshot(msg.getSender());
 
             }
             System.out.println("Receiver stopped.");

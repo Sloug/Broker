@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 public class NotImplementedYetController implements ActionListener {
 	private final Component parent;
 
-	public NotImplementedYetController(Component parent) {
+	public NotImplementedYetController(Component parent, TankModel tankModel) {
 		this.parent = parent;
 	}
 
