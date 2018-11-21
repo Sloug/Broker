@@ -21,6 +21,5 @@ public class SnapshotController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         tankModel.initiateSnapshot();
-        JOptionPane.showMessageDialog(parent, "Snapshot initiated.");
     }
 }

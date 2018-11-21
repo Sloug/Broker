@@ -131,7 +131,6 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             snapshot = globalSnapshot.getGlobalFishPopulation();
             snapshotFlag = true;
             initiator = false;
-//            this.snapshotFlag = true;
             return;
         }
         while (mode != Mode.IDLE) {
@@ -167,9 +166,9 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         if (mode != Mode.IDLE) {
             if (mode == Mode.BOTH)
                 backup.addFish();
-            else if (mode == Mode.RIGHT && sender == neighbors.getRightNeighbor())
+            else if (mode == Mode.RIGHT && sender.equals(neighbors.getRightNeighbor()))
                 backup.addFish();
-            else if (mode == Mode.LEFT && sender == neighbors.getLeftNeighbor())
+            else if (mode == Mode.LEFT && sender.equals(neighbors.getLeftNeighbor()))
                 backup.addFish();
 
         }

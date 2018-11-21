@@ -64,17 +64,17 @@ public class ClientCommunicator {
             while (!isInterrupted()) {
                 Message msg = endpoint.blockingReceive();
 
-//                if (tankModel.mode != TankModel.Mode.IDLE) {
-//                    if (tankModel.mode == TankModel.Mode.BOTH)
-//                        if (tankModel.neighbors.getRightNeighbor() == msg.getSender())
-//                            tankModel.rightSaveList.add(msg);
-//                        else
-//                            tankModel.leftSaveList.add(msg);
-//                    else if (tankModel.mode != TankModel.Mode.RIGHT && tankModel.neighbors.getRightNeighbor() == msg.getSender())
-//                        tankModel.rightSaveList.add(msg);
-//                    else if (tankModel.mode != TankModel.Mode.LEFT && tankModel.neighbors.getLeftNeighbor() == msg.getSender())
-//                        tankModel.leftSaveList.add(msg);
-//                }
+                if (tankModel.mode != TankModel.Mode.IDLE) {
+                    if (tankModel.mode == TankModel.Mode.BOTH)
+                        if (tankModel.neighbors.getRightNeighbor().equals(msg.getSender()))
+                            tankModel.rightSaveList.add(msg);
+                        else
+                            tankModel.leftSaveList.add(msg);
+                    else if (tankModel.mode == TankModel.Mode.RIGHT && tankModel.neighbors.getRightNeighbor().equals(msg.getSender()))
+                        tankModel.rightSaveList.add(msg);
+                    else if (tankModel.mode == TankModel.Mode.LEFT && tankModel.neighbors.getLeftNeighbor().equals(msg.getSender()))
+                        tankModel.leftSaveList.add(msg);
+                }
 
                 if (msg.getPayload() instanceof RegisterResponse)
                     tankModel.onRegistration(((RegisterResponse) msg.getPayload()).getId());
