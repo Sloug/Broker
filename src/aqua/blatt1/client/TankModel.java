@@ -25,14 +25,14 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected NeighborUpdate.Neighbors neighbors;
     protected volatile Boolean token = false;
     protected Timer timer = new Timer();
-    protected Mode mode = Mode.IDLE;
-    protected Save backup;
+    protected volatile Mode mode = Mode.IDLE;
+    protected volatile Save backup;
     //    protected List<Message> saveList;
-    protected List<Message> rightSaveList;
-    protected List<Message> leftSaveList;
-    protected boolean initiator = false;
-    protected int snapshot;
-    protected boolean snapshotFlag = false;
+    protected volatile List<Message> rightSaveList;
+    protected volatile List<Message> leftSaveList;
+    protected volatile boolean initiator = false;
+    protected volatile int snapshot;
+    protected volatile boolean snapshotFlag = false;
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
@@ -57,7 +57,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
     }
 
-    public synchronized void initiateSnapshot() {
+    public void initiateSnapshot() {
         System.out.println("Init Snap");
         backup = new Save(fishCounter);
         initiator = true;
@@ -67,6 +67,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         forwarder.sendMarkers(neighbors);
         while (this.mode != Mode.IDLE) {
             try {
+                System.out.println("wait for end of main record" + this.mode);
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -81,30 +82,37 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         System.out.println("Create Snap");
         if (mode == Mode.IDLE) {
             backup = new Save(fishCounter);
-            if (neighbors.getRightNeighbor() == sender) {
+            if (neighbors.getRightNeighbor().equals(sender)) {
                 leftSaveList = new ArrayList<>();
                 backup.rightSaveList = new ArrayList<>();
                 mode = Mode.LEFT;
+                System.out.println("LEFT");
             } else {
                 rightSaveList = new ArrayList<>();
                 backup.leftSaveList = new ArrayList<>();
                 mode = Mode.RIGHT;
+                System.out.println("RIGHT");
             }
             forwarder.sendMarkers(neighbors);
         } else if (mode == Mode.RIGHT) {
-            if (neighbors.getRightNeighbor() == sender) {
+            System.out.println("Comes from right " + (neighbors.getRightNeighbor().equals(sender)));
+            if (neighbors.getRightNeighbor().equals(sender)) {
                 backup.rightSaveList = rightSaveList;
                 mode = Mode.IDLE;
                 System.out.println("IDLE");
             }
         } else if (mode == Mode.LEFT) {
-            if (neighbors.getLeftNeighbor() == sender) {
+            System.out.println("Comes from left " + (neighbors.getLeftNeighbor().equals(sender)));
+            if (neighbors.getLeftNeighbor().equals(sender)) {
                 backup.leftSaveList = leftSaveList;
                 mode = Mode.IDLE;
                 System.out.println("IDLE");
             }
         } else {
-            if (neighbors.getRightNeighbor() == sender) {
+            System.out.println("BOTH");
+            System.out.println("BOTH Comes from right " + (neighbors.getRightNeighbor().equals(sender)));
+            System.out.println("BOTH Comes from left " + (neighbors.getLeftNeighbor().equals(sender)));
+            if (neighbors.getRightNeighbor().equals(sender)) {
                 backup.rightSaveList = rightSaveList;
                 mode = Mode.LEFT;
             } else {
@@ -113,11 +121,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             }
             //quit if mode == IDLE
         }
-        System.out.println("Left create Snap");
+        System.out.println("Leave create Snap " + mode);
 
     }
 
-    void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
+    synchronized void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
         System.out.println("Recieve SnapToken");
         if (initiator) {
             snapshot = globalSnapshot.getGlobalFishPopulation();
@@ -128,6 +136,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
         while (mode != Mode.IDLE) {
             try {
+                System.out.println("wait for end of record");
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -42,6 +42,7 @@ public class ClientCommunicator {
         }
 
         public void sendMarkers(NeighborUpdate.Neighbors neighbors) {
+            System.out.println("SendMarkers");
             endpoint.send(neighbors.getRightNeighbor(), new SnapshotMarker());
             endpoint.send(neighbors.getLeftNeighbor(), new SnapshotMarker());
         }
@@ -87,8 +88,11 @@ public class ClientCommunicator {
                 if (msg.getPayload() instanceof Token)
                     tankModel.receiveToken();
 
-                if (msg.getPayload() instanceof SnapshotMarker)
+                if (msg.getPayload() instanceof SnapshotMarker) {
+                    System.out.println("Get Markers");
                     tankModel.createLocalSnapshot(msg.getSender());
+                    System.out.println("finished");
+                }
 
                 if (msg.getPayload() instanceof SnapshotCollectionToken)
                     tankModel.receiveSnapshotCollectionToken((SnapshotCollectionToken) msg.getPayload());

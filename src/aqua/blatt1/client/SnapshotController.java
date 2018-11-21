@@ -1,4 +1,4 @@
-package aqua.blatt1.client.resources;
+package aqua.blatt1.client;
 
 import aqua.blatt1.client.TankModel;
 
