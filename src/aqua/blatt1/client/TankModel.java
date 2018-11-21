@@ -58,8 +58,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     }
 
     public synchronized void initiateSnapshot() {
+        System.out.println("Init Snap");
         backup = new Save(fishCounter);
         initiator = true;
+        leftSaveList = new ArrayList<>();
+        rightSaveList = new ArrayList<>();
         mode = Mode.BOTH;
         forwarder.sendMarkers(neighbors);
         while (this.mode != Mode.IDLE) {
@@ -75,6 +78,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
 
 
     void createLocalSnapshot(InetSocketAddress sender) {
+        System.out.println("Create Snap");
         if (mode == Mode.IDLE) {
             backup = new Save(fishCounter);
             if (neighbors.getRightNeighbor() == sender) {
@@ -91,11 +95,13 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             if (neighbors.getRightNeighbor() == sender) {
                 backup.rightSaveList = rightSaveList;
                 mode = Mode.IDLE;
+                System.out.println("IDLE");
             }
         } else if (mode == Mode.LEFT) {
             if (neighbors.getLeftNeighbor() == sender) {
                 backup.leftSaveList = leftSaveList;
                 mode = Mode.IDLE;
+                System.out.println("IDLE");
             }
         } else {
             if (neighbors.getRightNeighbor() == sender) {
@@ -107,13 +113,16 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             }
             //quit if mode == IDLE
         }
+        System.out.println("Left create Snap");
 
     }
 
     void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
+        System.out.println("Recieve SnapToken");
         if (initiator) {
             snapshot = globalSnapshot.getGlobalFishPopulation();
             snapshotFlag = true;
+            initiator = false;
 //            this.snapshotFlag = true;
             return;
         }
