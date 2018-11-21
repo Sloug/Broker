@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d66adf86-d6fa-4cbf-81c9-54bceb387727" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/SnapshotCollectionToken.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/aqua/blatt1/client/AquaGui.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/aqua/blatt1/client/AquaGui.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/aqua/blatt1/client/NotImplementedYetController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/aqua/blatt1/client/NotImplementedYetController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,13 +31,13 @@
         <counts>
           <entry key="class" value="2" />
           <entry key="gitignore" value="1" />
-          <entry key="java" value="38" />
+          <entry key="java" value="41" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CLASS" value="2" />
-          <entry key="JAVA" value="38" />
+          <entry key="JAVA" value="41" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
@@ -46,14 +45,14 @@
         <counts>
           <entry key="dummy" value="87" />
           <entry key="gitignore" value="1" />
-          <entry key="java" value="4183" />
-          <entry key="txt" value="37" />
+          <entry key="java" value="4602" />
+          <entry key="txt" value="55" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="4183" />
-          <entry key="PLAIN_TEXT" value="125" />
+          <entry key="JAVA" value="4602" />
+          <entry key="PLAIN_TEXT" value="143" />
         </counts>
       </usages-collector>
     </session>
@@ -66,8 +65,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="194">
-              <caret line="61" selection-start-line="61" selection-end-line="71" selection-end-column="17" />
+            <state relative-caret-position="210">
+              <caret line="49" column="44" selection-start-line="49" selection-start-column="44" selection-end-line="49" selection-end-column="44" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -75,11 +74,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="83" column="13" selection-start-line="83" selection-start-column="13" selection-end-line="83" selection-end-column="13" />
+            <state relative-caret-position="332">
+              <caret line="71" column="139" selection-start-line="71" selection-start-column="139" selection-end-line="71" selection-end-column="139" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1545#1546#0" expanded="true" />
@@ -124,11 +123,47 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/SnapshotCollectionToken.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
+              <folding>
+                <element signature="e#68#95#0" expanded="true" />
+                <element signature="e#257#258#0" expanded="true" />
+                <element signature="e#313#314#0" expanded="true" />
+                <element signature="e#375#376#0" expanded="true" />
+                <element signature="e#433#434#0" expanded="true" />
+                <element signature="e#479#480#0" expanded="true" />
+                <element signature="e#521#522#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/RegisterResponse.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="75">
+              <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/Token.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="1" lean-forward="true" selection-start-line="25" selection-start-column="1" selection-end-line="25" selection-end-column="1" />
+            <state relative-caret-position="315">
+              <caret line="21" column="48" lean-forward="true" selection-start-line="21" selection-start-column="48" selection-end-line="21" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -206,11 +241,12 @@
         <option value="$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/RegisterRequest.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/SnapshotMarker.java" />
-        <option value="$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java" />
-        <option value="$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java" />
         <option value="$PROJECT_DIR$/src/aqua/blatt1/client/AquaGui.java" />
         <option value="$PROJECT_DIR$/src/aqua/blatt1/client/NotImplementedYetController.java" />
         <option value="$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java" />
+        <option value="$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/SnapshotCollectionToken.java" />
+        <option value="$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java" />
+        <option value="$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java" />
       </list>
     </option>
   </component>
@@ -278,15 +314,6 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="aqua" type="462c0819:PsiDirectoryNode" />
               <item name="blatt1" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Broker" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Broker" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="aqua" type="462c0819:PsiDirectoryNode" />
-              <item name="blatt1" type="462c0819:PsiDirectoryNode" />
               <item name="common" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -318,7 +345,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542802772930" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542803943457" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -399,7 +426,7 @@
       <workItem from="1542642244161" duration="2552000" />
       <workItem from="1542711471651" duration="4084000" />
       <workItem from="1542726932026" duration="6030000" />
-      <workItem from="1542745243453" duration="22560000" />
+      <workItem from="1542745243453" duration="23722000" />
     </task>
     <task id="LOCAL-00001" summary="most of snapshot is implemented">
       <created>1542801004378</created>
@@ -408,11 +435,18 @@
       <option name="project" value="LOCAL" />
       <updated>1542801004378</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="snapshot is implemented but not collected">
+      <created>1542802836061</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1542802836062</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70389000" />
+    <option name="totallyTimeSpent" value="71551000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -428,8 +462,8 @@
     <frame x="2" y="1080" width="1918" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49921754" visible="true" weight="0.2366167" />
-      <window_info id="Structure" order="1" sideWeight="0.5007825" side_tool="true" visible="true" weight="0.2366167" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49921754" visible="true" weight="0.2366167" />
+      <window_info id="Structure" order="1" sideWeight="0.5007825" side_tool="true" weight="0.2366167" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
       <window_info id="UI Designer" order="4" />
@@ -442,7 +476,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32901832" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49946466" visible="true" weight="0.32948583" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49946466" visible="true" weight="0.32948583" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49946466" weight="0.30115426" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5005353" side_tool="true" visible="true" weight="0.32948583" />
@@ -466,7 +500,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="most of snapshot is implemented" />
-    <option name="LAST_COMMIT_MESSAGE" value="most of snapshot is implemented" />
+    <MESSAGE value="snapshot is implemented but not collected" />
+    <option name="LAST_COMMIT_MESSAGE" value="snapshot is implemented but not collected" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -523,13 +558,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
           <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/RegisterResponse.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -609,13 +637,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/Token.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="25" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/broker/ClientCollection.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="945">
@@ -644,10 +665,76 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/TankView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="422">
+          <caret line="65" column="5" selection-start-line="65" selection-start-column="5" selection-end-line="65" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/AquaGui.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="68" column="95" selection-start-line="68" selection-start-column="95" selection-end-line="68" selection-end-column="95" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="48" lean-forward="true" selection-start-line="21" selection-start-column="48" selection-end-line="21" selection-end-column="48" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/NotImplementedYetController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#320#321#0" expanded="true" />
+            <element signature="e#347#348#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/Token.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/RegisterResponse.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/common/msgtypes/SnapshotCollectionToken.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
+          <folding>
+            <element signature="e#68#95#0" expanded="true" />
+            <element signature="e#257#258#0" expanded="true" />
+            <element signature="e#313#314#0" expanded="true" />
+            <element signature="e#375#376#0" expanded="true" />
+            <element signature="e#433#434#0" expanded="true" />
+            <element signature="e#479#480#0" expanded="true" />
+            <element signature="e#521#522#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/ClientCommunicator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="61" selection-start-line="61" selection-end-line="71" selection-end-column="17" />
+        <state relative-caret-position="210">
+          <caret line="49" column="44" selection-start-line="49" selection-start-column="44" selection-end-line="49" selection-end-column="44" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -656,8 +743,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/TankModel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="83" column="13" selection-start-line="83" selection-start-column="13" selection-end-line="83" selection-end-column="13" />
+        <state relative-caret-position="332">
+          <caret line="71" column="139" selection-start-line="71" selection-start-column="139" selection-end-line="71" selection-end-column="139" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1545#1546#0" expanded="true" />
@@ -674,42 +761,6 @@
             <element signature="e#5101#5102#0" expanded="true" />
             <element signature="e#6052#6053#0" expanded="true" />
             <element signature="e#6092#6093#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/TankView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="422">
-          <caret line="65" column="5" selection-start-line="65" selection-start-column="5" selection-end-line="65" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/AquaGui.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="68" column="95" selection-start-line="68" selection-start-column="95" selection-end-line="68" selection-end-column="95" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/NotImplementedYetController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#320#321#0" expanded="true" />
-            <element signature="e#347#348#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aqua/blatt1/client/resources/SnapshotController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="1" lean-forward="true" selection-start-line="25" selection-start-column="1" selection-end-line="25" selection-end-column="1" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

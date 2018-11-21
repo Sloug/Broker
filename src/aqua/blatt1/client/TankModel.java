@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.FishModel;
 import aqua.blatt1.common.msgtypes.NeighborUpdate;
+import aqua.blatt1.common.msgtypes.SnapshotCollectionToken;
 import messaging.Message;
 
 public class TankModel extends Observable implements Iterable<FishModel> {
@@ -26,9 +27,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected Timer timer = new Timer();
     protected Mode mode = Mode.IDLE;
     protected Save backup;
-//    protected List<Message> saveList;
+    //    protected List<Message> saveList;
     protected List<Message> rightSaveList;
     protected List<Message> leftSaveList;
+    protected boolean initiator = false;
+    protected int snapshot;
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
@@ -55,9 +58,20 @@ public class TankModel extends Observable implements Iterable<FishModel> {
 
     public synchronized void initiateSnapshot() {
         backup = new Save(fishCounter);
+        initiator = true;
         mode = Mode.BOTH;
         forwarder.sendMarkers(neighbors);
+        while (this.mode != Mode.IDLE) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Successfully finished recording");
+        this.forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), new SnapshotCollectionToken(this.backup.fishCounterBackup));
     }
+
 
     void createLocalSnapshot(InetSocketAddress sender) {
         if (mode == Mode.IDLE) {
@@ -93,6 +107,23 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             //quit if mode == IDLE
         }
 
+    }
+
+    void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
+        if (initiator) {
+            snapshot = globalSnapshot.getGlobalFishPopulation();
+//            this.snapshotFlag = true;
+            return;
+        }
+        while (mode != Mode.IDLE) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        globalSnapshot.addFishesToPopulation(backup.fishCounterBackup);
+        forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), globalSnapshot);
     }
 
     synchronized void onRegistration(String id) {

@@ -45,6 +45,10 @@ public class ClientCommunicator {
             endpoint.send(neighbors.getRightNeighbor(), new SnapshotMarker());
             endpoint.send(neighbors.getLeftNeighbor(), new SnapshotMarker());
         }
+
+        public void sendSnapshotCollectionToken(InetSocketAddress reciever, SnapshotCollectionToken snapshot) {
+            endpoint.send(reciever, snapshot);
+        }
     }
 
     public class ClientReceiver extends Thread {
