@@ -32,6 +32,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected List<Message> leftSaveList;
     protected boolean initiator = false;
     protected int snapshot;
+    protected boolean snapshotFlag = false;
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
@@ -112,6 +113,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
         if (initiator) {
             snapshot = globalSnapshot.getGlobalFishPopulation();
+            snapshotFlag = true;
 //            this.snapshotFlag = true;
             return;
         }

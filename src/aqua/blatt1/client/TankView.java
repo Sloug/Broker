@@ -9,64 +9,85 @@ import java.awt.event.MouseEvent;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import aqua.blatt1.common.FishModel;
 
 @SuppressWarnings("serial")
 public class TankView extends JPanel implements Observer {
-	private final TankModel tankModel;
-	private final FishView fishView;
-	private final Runnable repaintRunnable;
+    private final TankModel tankModel;
+    private final FishView fishView;
+    private final Runnable repaintRunnable;
+    Thread t1 = new Thread(new Runnable() {
+        public void run() {
+            showSnapshot();
+        }
+    });
 
-	public TankView(final TankModel tankModel) {
-		this.tankModel = tankModel;
-		fishView = new FishView();
+    public TankView(final TankModel tankModel) {
+        this.tankModel = tankModel;
+        fishView = new FishView();
+        t1.start();
 
-		repaintRunnable = new Runnable() {
-			@Override
-			public void run() {
-				repaint();
-			}
-		};
+        repaintRunnable = new Runnable() {
+            @Override
+            public void run() {
+                repaint();
+            }
+        };
 
-		setPreferredSize(new Dimension(TankModel.WIDTH, TankModel.HEIGHT));
-		setBackground(new Color(175, 200, 235));
+        setPreferredSize(new Dimension(TankModel.WIDTH, TankModel.HEIGHT));
+        setBackground(new Color(175, 200, 235));
 
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				tankModel.newFish(e.getX(), e.getY());
-			}
-		});
-	}
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tankModel.newFish(e.getX(), e.getY());
+            }
+        });
+    }
 
-	private void drawBorders(Graphics2D g2d) {
-		g2d.drawLine(0, 0, 0, TankModel.HEIGHT);
-		g2d.drawLine(TankModel.WIDTH - 1, 0, TankModel.WIDTH - 1, TankModel.HEIGHT);
-	}
+    public void showSnapshot() {
+        while (!Thread.interrupted()) {
+            while (!tankModel.snapshotFlag) {
+                // wait
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            JOptionPane.showMessageDialog(this, tankModel.snapshot, "Global Snapshot",
+                    JOptionPane.INFORMATION_MESSAGE);
+            tankModel.snapshotFlag = false;
+        }
+    }
 
-	private void doDrawing(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
+    private void drawBorders(Graphics2D g2d) {
+        g2d.drawLine(0, 0, 0, TankModel.HEIGHT);
+        g2d.drawLine(TankModel.WIDTH - 1, 0, TankModel.WIDTH - 1, TankModel.HEIGHT);
+    }
 
-		for (FishModel fishModel : tankModel) {
-			g2d.drawImage(fishView.getImage(fishModel), fishModel.getX(), fishModel.getY(), null);
-			g2d.drawString(fishModel.getId(), fishModel.getX(), fishModel.getY());
-		}
+    private void doDrawing(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
 
-	}
+        for (FishModel fishModel : tankModel) {
+            g2d.drawImage(fishView.getImage(fishModel), fishModel.getX(), fishModel.getY(), null);
+            g2d.drawString(fishModel.getId(), fishModel.getX(), fishModel.getY());
+        }
 
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		doDrawing(g);
-		if (!tankModel.hasToken())
-			drawBorders((Graphics2D) g);
-	}
+    }
 
-	@Override
-	public void update(Observable o, Object arg) {
-		SwingUtilities.invokeLater(repaintRunnable);
-	}
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        doDrawing(g);
+        if (!tankModel.hasToken())
+            drawBorders((Graphics2D) g);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        SwingUtilities.invokeLater(repaintRunnable);
+    }
 }
