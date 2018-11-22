@@ -52,14 +52,14 @@ public class TankView extends JPanel implements Observer {
             while (!tankModel.snapshotFlag) {
                 // wait
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            JOptionPane.showMessageDialog(this, tankModel.snapshot, "Global Snapshot",
+            JOptionPane.showMessageDialog(this, tankModel.snapshot + " fishes", "Global Snapshot",
                     JOptionPane.INFORMATION_MESSAGE);
-            tankModel.snapshotFlag = false;
+            tankModel.resetSnapshot();
         }
     }
 

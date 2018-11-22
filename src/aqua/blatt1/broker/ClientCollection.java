@@ -59,9 +59,7 @@ public class ClientCollection<T> {
 
 	public T getLeftNeighorOf(int index) {
 		if (clients.size() == 1) {
-            System.out.println("First: " + index);
 			return clients.get(index).client; }
-        System.out.println(index + " " + clients.size());
 		return index == 0 ? clients.get(clients.size() - 1).client : clients.get(index - 1).client;
 	}
 

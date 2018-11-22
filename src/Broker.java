@@ -41,7 +41,6 @@ public class Broker {
 
         while (!stopRequested) {
             Message msg = endpoint.blockingReceive();
-            System.out.println("Message Received");
             if (msg.getPayload() instanceof PoisonPill) {
                 stopGUIThread.interrupt();
                 break;
@@ -104,10 +103,8 @@ public class Broker {
             lock.writeLock().unlock();
             endpoint.send(sender, new RegisterResponse(cliname));
             informNeighbors(sender, false);
-            System.out.println("Register");
             synchronized (firstRegister) {
                 if (firstRegister) {
-                    System.out.println("First Register");
                     endpoint.send(sender, new Token());
                     firstRegister = false;
                 }

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="messaging_doc">
-    <CLASSES />
-    <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/Dependencies/messaging-javadoc.jar!/messaging" />
-    </JAVADOC>
-    <SOURCES />
-  </library>
-</component>

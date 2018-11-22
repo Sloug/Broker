@@ -1,6 +1,5 @@
 package aqua.blatt1.client;
 
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,9 +26,6 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected Timer timer = new Timer();
     protected volatile Mode mode = Mode.IDLE;
     protected volatile Save backup;
-    //    protected List<Message> saveList;
-    protected volatile List<Message> rightSaveList;
-    protected volatile List<Message> leftSaveList;
     protected volatile boolean initiator = false;
     protected volatile int snapshot;
     protected volatile boolean snapshotFlag = false;
@@ -53,96 +49,73 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
 
         Save(int fishCounter) {
-            this.fishCounterBackup = fishCounter;
+            fishCounterBackup = fishCounter;
+            rightSaveList = new ArrayList<>();
+            leftSaveList = new ArrayList<>();
         }
+    }
+
+    public void resetSnapshot() {
+        initiator = false;
+        snapshotFlag = false;
+        snapshot = 0;
+        backup = null;
     }
 
     public void initiateSnapshot() {
-        System.out.println("Init Snap");
         backup = new Save(fishCounter);
         initiator = true;
-        leftSaveList = new ArrayList<>();
-        rightSaveList = new ArrayList<>();
         mode = Mode.BOTH;
         forwarder.sendMarkers(neighbors);
-        while (this.mode != Mode.IDLE) {
+        pollIdle();
+        forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), new SnapshotCollectionToken(backup.fishCounterBackup));
+    }
+
+    private void pollIdle() {
+        while (mode != Mode.IDLE) {
             try {
-                System.out.println("wait for end of main record" + this.mode);
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("Successfully finished recording");
-        this.forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), new SnapshotCollectionToken(this.backup.fishCounterBackup));
     }
 
 
-    void createLocalSnapshot(InetSocketAddress sender) {
-        System.out.println("Create Snap");
+    synchronized void createLocalSnapshot(InetSocketAddress sender) {
         if (mode == Mode.IDLE) {
             backup = new Save(fishCounter);
-            if (neighbors.getRightNeighbor().equals(sender)) {
-                leftSaveList = new ArrayList<>();
-                backup.rightSaveList = new ArrayList<>();
+            if (neighbors.isRightNeighbor(sender)) {
+                backup.rightSaveList = Collections.EMPTY_LIST;
                 mode = Mode.LEFT;
-                System.out.println("LEFT");
             } else {
-                rightSaveList = new ArrayList<>();
-                backup.leftSaveList = new ArrayList<>();
+                backup.leftSaveList = Collections.EMPTY_LIST;
                 mode = Mode.RIGHT;
-                System.out.println("RIGHT");
             }
             forwarder.sendMarkers(neighbors);
-        } else if (mode == Mode.RIGHT) {
-            System.out.println("Comes from right " + (neighbors.getRightNeighbor().equals(sender)));
-            if (neighbors.getRightNeighbor().equals(sender)) {
-                backup.rightSaveList = rightSaveList;
-                mode = Mode.IDLE;
-                System.out.println("IDLE");
-            }
-        } else if (mode == Mode.LEFT) {
-            System.out.println("Comes from left " + (neighbors.getLeftNeighbor().equals(sender)));
-            if (neighbors.getLeftNeighbor().equals(sender)) {
-                backup.leftSaveList = leftSaveList;
-                mode = Mode.IDLE;
-                System.out.println("IDLE");
-            }
+        } else if (mode == Mode.RIGHT && neighbors.isRightNeighbor(sender)) {
+            mode = Mode.IDLE;
+        } else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(sender)) {
+            mode = Mode.IDLE;
         } else {
-            System.out.println("BOTH");
-            System.out.println("BOTH Comes from right " + (neighbors.getRightNeighbor().equals(sender)));
-            System.out.println("BOTH Comes from left " + (neighbors.getLeftNeighbor().equals(sender)));
-            if (neighbors.getRightNeighbor().equals(sender)) {
-                backup.rightSaveList = rightSaveList;
+            if (neighbors.isRightNeighbor(sender)) {
                 mode = Mode.LEFT;
             } else {
-                backup.leftSaveList = leftSaveList;
                 mode = Mode.RIGHT;
             }
-            //quit if mode == IDLE
         }
-        System.out.println("Leave create Snap " + mode);
-
     }
 
-    synchronized void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
-        System.out.println("Recieve SnapToken");
+    void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
         if (initiator) {
             snapshot = globalSnapshot.getGlobalFishPopulation();
             snapshotFlag = true;
-            initiator = false;
             return;
         }
-        while (mode != Mode.IDLE) {
-            try {
-                System.out.println("wait for end of record");
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        pollIdle();
         globalSnapshot.addFishesToPopulation(backup.fishCounterBackup);
         forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), globalSnapshot);
+        resetSnapshot();
     }
 
     synchronized void onRegistration(String id) {
@@ -166,11 +139,10 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         if (mode != Mode.IDLE) {
             if (mode == Mode.BOTH)
                 backup.addFish();
-            else if (mode == Mode.RIGHT && sender.equals(neighbors.getRightNeighbor()))
+            else if (mode == Mode.RIGHT && neighbors.isRightNeighbor(sender))
                 backup.addFish();
-            else if (mode == Mode.LEFT && sender.equals(neighbors.getLeftNeighbor()))
+            else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(sender))
                 backup.addFish();
-
         }
         fish.setToStart();
         fishies.add(fish);

@@ -42,7 +42,6 @@ public class ClientCommunicator {
         }
 
         public void sendMarkers(NeighborUpdate.Neighbors neighbors) {
-            System.out.println("SendMarkers");
             endpoint.send(neighbors.getRightNeighbor(), new SnapshotMarker());
             endpoint.send(neighbors.getLeftNeighbor(), new SnapshotMarker());
         }
@@ -66,14 +65,14 @@ public class ClientCommunicator {
 
                 if (tankModel.mode != TankModel.Mode.IDLE) {
                     if (tankModel.mode == TankModel.Mode.BOTH)
-                        if (tankModel.neighbors.getRightNeighbor().equals(msg.getSender()))
-                            tankModel.rightSaveList.add(msg);
+                        if (tankModel.neighbors.isRightNeighbor(msg.getSender()))
+                            tankModel.backup.rightSaveList.add(msg);
                         else
-                            tankModel.leftSaveList.add(msg);
-                    else if (tankModel.mode == TankModel.Mode.RIGHT && tankModel.neighbors.getRightNeighbor().equals(msg.getSender()))
-                        tankModel.rightSaveList.add(msg);
-                    else if (tankModel.mode == TankModel.Mode.LEFT && tankModel.neighbors.getLeftNeighbor().equals(msg.getSender()))
-                        tankModel.leftSaveList.add(msg);
+                            tankModel.backup.leftSaveList.add(msg);
+                    else if (tankModel.mode == TankModel.Mode.RIGHT && tankModel.neighbors.isRightNeighbor(msg.getSender()))
+                        tankModel.backup.rightSaveList.add(msg);
+                    else if (tankModel.mode == TankModel.Mode.LEFT && tankModel.neighbors.isLeftNeighbor(msg.getSender()))
+                        tankModel.backup.leftSaveList.add(msg);
                 }
 
                 if (msg.getPayload() instanceof RegisterResponse)
@@ -89,16 +88,13 @@ public class ClientCommunicator {
                     tankModel.receiveToken();
 
                 if (msg.getPayload() instanceof SnapshotMarker) {
-                    System.out.println("Get Markers");
                     tankModel.createLocalSnapshot(msg.getSender());
-                    System.out.println("finished");
                 }
 
                 if (msg.getPayload() instanceof SnapshotCollectionToken)
                     tankModel.receiveSnapshotCollectionToken((SnapshotCollectionToken) msg.getPayload());
 
             }
-            System.out.println("Receiver stopped.");
         }
     }
 

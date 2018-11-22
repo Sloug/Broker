@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="aqua-blatt1-src">
-    <CLASSES />
-    <JAVADOC />
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/Dependencies/aqua-blatt1-src.jar!/" />
-    </SOURCES>
-  </library>
-</component>
