@@ -62,17 +62,18 @@ public class ClientCommunicator {
         public void run() {
             while (!isInterrupted()) {
                 Message msg = endpoint.blockingReceive();
-
-                if (tankModel.mode != TankModel.Mode.IDLE) {
-                    if (tankModel.mode == TankModel.Mode.BOTH)
-                        if (tankModel.neighbors.isRightNeighbor(msg.getSender()))
+                synchronized (tankModel) {
+                    if (tankModel.mode != TankModel.Mode.IDLE) {
+                        if (tankModel.mode == TankModel.Mode.BOTH)
+                            if (tankModel.neighbors.isRightNeighbor(msg.getSender()))
+                                tankModel.backup.rightSaveList.add(msg);
+                            else
+                                tankModel.backup.leftSaveList.add(msg);
+                        else if (tankModel.mode == TankModel.Mode.RIGHT && tankModel.neighbors.isRightNeighbor(msg.getSender()))
                             tankModel.backup.rightSaveList.add(msg);
-                        else
+                        else if (tankModel.mode == TankModel.Mode.LEFT && tankModel.neighbors.isLeftNeighbor(msg.getSender()))
                             tankModel.backup.leftSaveList.add(msg);
-                    else if (tankModel.mode == TankModel.Mode.RIGHT && tankModel.neighbors.isRightNeighbor(msg.getSender()))
-                        tankModel.backup.rightSaveList.add(msg);
-                    else if (tankModel.mode == TankModel.Mode.LEFT && tankModel.neighbors.isLeftNeighbor(msg.getSender()))
-                        tankModel.backup.leftSaveList.add(msg);
+                    }
                 }
 
                 if (msg.getPayload() instanceof RegisterResponse)

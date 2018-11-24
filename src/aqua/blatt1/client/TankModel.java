@@ -55,24 +55,35 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
     }
 
-    public void resetSnapshot() {
+    public synchronized void resetSnapshot() {
         initiator = false;
         snapshotFlag = false;
         snapshot = 0;
         backup = null;
     }
 
-    public void initiateSnapshot() {
+    private synchronized void initSnapOp() {
         backup = new Save(fishCounter);
         initiator = true;
         mode = Mode.BOTH;
         forwarder.sendMarkers(neighbors);
+    }
+
+    public void initiateSnapshot() {
+        initSnapOp();
         pollIdle();
-        forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), new SnapshotCollectionToken(backup.fishCounterBackup));
+        synchronized (forwarder) {
+            forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), new SnapshotCollectionToken(backup.fishCounterBackup));
+        }
     }
 
     private void pollIdle() {
-        while (mode != Mode.IDLE) {
+        while (true) {
+            synchronized (mode) {
+                if (mode == Mode.IDLE) {
+                    break;
+                }
+            }
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -106,16 +117,26 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         }
     }
 
-    void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
+    private synchronized boolean ifInitiatior(SnapshotCollectionToken globalSnapshot) {
         if (initiator) {
             snapshot = globalSnapshot.getGlobalFishPopulation();
             snapshotFlag = true;
-            return;
         }
-        pollIdle();
+        return initiator;
+    }
+
+    private synchronized void sendSnapToken(SnapshotCollectionToken globalSnapshot) {
         globalSnapshot.addFishesToPopulation(backup.fishCounterBackup);
         forwarder.sendSnapshotCollectionToken(neighbors.getLeftNeighbor(), globalSnapshot);
         resetSnapshot();
+    }
+
+    void receiveSnapshotCollectionToken(SnapshotCollectionToken globalSnapshot) {
+        if (!ifInitiatior(globalSnapshot)) {
+            pollIdle();
+            sendSnapToken(globalSnapshot);
+        }
+
     }
 
     synchronized void onRegistration(String id) {
