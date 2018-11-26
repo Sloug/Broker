@@ -64,7 +64,8 @@ public class AquaGui extends JFrame implements Runnable, Observer {
 				while (tankModel.getFishCounter() > size) {
 					String fishId = "fish" + (++size) + "@" + tankModel.getId();
 					JMenuItem fishMenuItem = new JMenuItem(fishId);
-					fishMenuItem.addActionListener(new NotImplementedYetController(AquaGui.this));
+					fishMenuItem.addActionListener(new ToggleController(AquaGui.this, tankModel, fishId));
+//					fishMenuItem.addActionListener(new NotImplementedYetController(AquaGui.this));
 					fishMenuItems.add(fishMenuItem);
 					searchMenu.add(fishMenuItem);
 				}

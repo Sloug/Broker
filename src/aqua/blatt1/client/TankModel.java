@@ -2,6 +2,7 @@ package aqua.blatt1.client;
 
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +12,7 @@ import aqua.blatt1.common.msgtypes.NeighborUpdate;
 import aqua.blatt1.common.msgtypes.SnapshotCollectionToken;
 import messaging.Message;
 
+
 public class TankModel extends Observable implements Iterable<FishModel> {
 
     public static final int WIDTH = 600;
@@ -19,7 +21,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected static final Random rand = new Random();
     protected volatile String id;
     protected final Set<FishModel> fishies;
-    protected int fishCounter = 0;
+    protected volatile int fishCounter = 0;
     protected final ClientCommunicator.ClientForwarder forwarder;
     protected NeighborUpdate.Neighbors neighbors;
     protected volatile Boolean token = false;
@@ -29,10 +31,48 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected volatile boolean initiator = false;
     protected volatile int snapshot;
     protected volatile boolean snapshotFlag = false;
+    private static final List<FishEntity> fishLocations = new ArrayList<>();
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
         this.forwarder = forwarder;
+    }
+
+    private class FishEntity {
+        final String fishId;
+        FishLocation fishLocation;
+
+        FishEntity(String fishId) {
+            this.fishId = fishId;
+            fishLocation = FishLocation.HERE;
+        }
+    }
+
+    private enum FishLocation {
+        HERE, LEFT, RIGHT
+    }
+
+    synchronized void locateFishGlobally(String fishId) {
+        if (!locateFishLocally(fishId)) {
+            fishLocations.stream().forEach(fishEntity -> {
+                if (fishEntity.fishId.equals(fishId)) {
+                    forwarder.sendLocationRequest(fishEntity.fishLocation == FishLocation.RIGHT ?
+                            neighbors.getRightNeighbor() : neighbors.getLeftNeighbor(), fishId);
+
+                    return;
+                }
+            });
+        }
+    }
+
+    private synchronized boolean locateFishLocally(String fishId) {
+        //find any can lead to failures (one tank handoff)
+        Optional<FishModel> tmp = fishies.stream().filter(fishModel -> fishModel.getId().equals(fishId)).findAny();
+        if (tmp.isPresent()) {
+            tmp.get().toggle();
+            return true;
+        }
+        return false;
     }
 
     enum Mode {
@@ -148,9 +188,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         if (fishies.size() < MAX_FISHIES) {
             x = x > WIDTH - FishModel.getXSize() - 1 ? WIDTH - FishModel.getXSize() - 1 : x;
             y = y > HEIGHT - FishModel.getYSize() ? HEIGHT - FishModel.getYSize() : y;
-
-            FishModel fish = new FishModel("fish" + (++fishCounter) + "@" + getId(), x, y,
+            String fishId = "fish" + (++fishCounter) + "@" + getId();
+            FishModel fish = new FishModel(fishId, x, y,
                     rand.nextBoolean() ? Direction.LEFT : Direction.RIGHT);
+
+            fishLocations.add(new FishEntity(fishId));
 
             fishies.add(fish);
         }
@@ -165,6 +207,15 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(sender))
                 backup.addFish();
         }
+
+        if (!fishLocations.stream().anyMatch(fishLocation -> {
+            if (fishLocation.fishId.equals(fish.getId())) {
+                fishLocation.fishLocation = FishLocation.HERE;
+                return true;
+            }
+            return false;
+        }))
+            fishLocations.add(new FishEntity(fish.getId()));
         fish.setToStart();
         fishies.add(fish);
     }
@@ -200,6 +251,13 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         return fishies.iterator();
     }
 
+    private synchronized void updateFishLocations(FishModel fish, FishLocation fishLocation) {
+        fishLocations.stream().forEach(fishEntity -> {
+            if (fishEntity.fishId.equals(fish.getId()))
+                fishEntity.fishLocation = fishLocation;
+        });
+    }
+
     private synchronized void updateFishies() {
         for (Iterator<FishModel> it = iterator(); it.hasNext(); ) {
             FishModel fish = it.next();
@@ -207,9 +265,14 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             fish.update();
 
             if (fish.hitsEdge()) {
-                if (token)
+                if (token) {
+                    //update fish
+                    if (fish.getDirection() == Direction.LEFT)
+                        updateFishLocations(fish, FishLocation.LEFT);
+                    else
+                        updateFishLocations(fish, FishLocation.RIGHT);
                     forwarder.handOff(fish, neighbors);
-                else
+                } else
                     fish.reverse();
             }
 
