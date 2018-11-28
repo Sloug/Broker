@@ -56,13 +56,17 @@ public class Broker {
 
         @Override
         public void run() {
-            if (msg.getPayload() instanceof RegisterRequest) {
+            if (msg.getPayload() instanceof RegisterRequest)
                 register(msg);
-            } else if (msg.getPayload() instanceof DeregisterRequest) {
+
+            if (msg.getPayload() instanceof DeregisterRequest)
                 deregister(msg);
-            } else if (msg.getPayload() instanceof HandoffRequest) {
+
+            if (msg.getPayload() instanceof HandoffRequest)
                 handoffFish(msg);
-            }
+
+            if (msg.getPayload() instanceof NameResolutionRequest)
+                sendNameResolutionResponse(msg);
         }
 
         private Neighbors getNeighborsOfClient(InetSocketAddress client) {
@@ -89,6 +93,14 @@ public class Broker {
             }
             passNeighborsToClient(neighborsMiddleClient.getLeftNeighbor(), neighborsLeftClient);
             passNeighborsToClient(neighborsMiddleClient.getRightNeighbor(), neighborsRightClient);
+        }
+
+        private void sendNameResolutionResponse(Message msg) {
+            InetSocketAddress reciever = msg.getSender();
+            NameResolutionRequest nameResolutionRequest = (NameResolutionRequest) msg.getPayload();
+            endpoint.send(reciever, new NameResolutionResponse((InetSocketAddress) clientCollection
+                    .getClient(clientCollection.indexOf(nameResolutionRequest.getTankId())), nameResolutionRequest
+                    .getRequestId()));
         }
 
         private void register(Message msg) {

@@ -19,6 +19,6 @@ public class ToggleController implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        tankModel.locateFishGlobally(fishId);
+        tankModel.locateFishGloballyHomeAgent(fishId);
     }
 }

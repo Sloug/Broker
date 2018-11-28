@@ -33,7 +33,8 @@ public class ClientCommunicator {
 
         public void handOff(FishModel fish, NeighborUpdate.Neighbors neighbors) {
             Direction direction = fish.getDirection();
-            InetSocketAddress receiver = (direction == Direction.LEFT) ? neighbors.getLeftNeighbor() : neighbors.getRightNeighbor();
+            InetSocketAddress receiver = (direction == Direction.LEFT) ?
+                    neighbors.getLeftNeighbor() : neighbors.getRightNeighbor();
             endpoint.send(receiver, new HandoffRequest(fish));
         }
 
@@ -52,6 +53,14 @@ public class ClientCommunicator {
 
         public void sendLocationRequest(InetSocketAddress reciever, String fishId) {
             endpoint.send(reciever, new LocationRequest(fishId));
+        }
+
+        public void sendNameResolutionRequest(String tankId, String fishId) {
+            endpoint.send(broker, new NameResolutionRequest(tankId, fishId));
+        }
+
+        public void sendLocationUpdate(InetSocketAddress reciever, String fishId) {
+            endpoint.send(reciever, new LocationUpdate(fishId));
         }
     }
 
@@ -92,15 +101,20 @@ public class ClientCommunicator {
                 if (msg.getPayload() instanceof Token)
                     tankModel.receiveToken();
 
-                if (msg.getPayload() instanceof SnapshotMarker) {
+                if (msg.getPayload() instanceof SnapshotMarker)
                     tankModel.createLocalSnapshot(msg.getSender());
-                }
 
                 if (msg.getPayload() instanceof SnapshotCollectionToken)
                     tankModel.receiveSnapshotCollectionToken((SnapshotCollectionToken) msg.getPayload());
 
                 if (msg.getPayload() instanceof LocationRequest)
-                    tankModel.locateFishGlobally(((LocationRequest) msg.getPayload()).getFishId());
+                    tankModel.locateFishGloballyHomeAgent(((LocationRequest) msg.getPayload()).getFishId());
+
+                if (msg.getPayload() instanceof NameResolutionResponse)
+                    tankModel.recieveNameResolutionResponse((NameResolutionResponse) msg.getPayload());
+
+                if (msg.getPayload() instanceof LocationUpdate)
+                    tankModel.recieveLocationUpdate(msg);
             }
         }
     }

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.FishModel;
+import aqua.blatt1.common.msgtypes.LocationUpdate;
+import aqua.blatt1.common.msgtypes.NameResolutionResponse;
 import aqua.blatt1.common.msgtypes.NeighborUpdate;
 import aqua.blatt1.common.msgtypes.SnapshotCollectionToken;
 import messaging.Message;
@@ -31,11 +33,22 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected volatile boolean initiator = false;
     protected volatile int snapshot;
     protected volatile boolean snapshotFlag = false;
-    private static final List<FishEntity> fishLocations = new ArrayList<>();
+    private static final Set<FishEntity> fishLocations = new HashSet<>();
+    private static final Set<FishEntity2> homeAgent = new HashSet<>();
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
         this.forwarder = forwarder;
+    }
+
+    private class FishEntity2 {
+        final String fishId;
+        InetSocketAddress location;
+
+        FishEntity2(String fishId) {
+            this.fishId = fishId;
+            location = null;
+        }
     }
 
     private class FishEntity {
@@ -52,7 +65,31 @@ public class TankModel extends Observable implements Iterable<FishModel> {
         HERE, LEFT, RIGHT
     }
 
+    synchronized void locateFishGloballyHomeAgent(String fishId) {
+        if (!homeAgent.stream().anyMatch((fishEntity2 -> {
+            if (fishEntity2.fishId.equals(fishId)) {
+                if (fishEntity2.location == null) {
+                    fishies.stream().forEach(fishModel -> {
+                        if (fishModel.getId().equals(fishEntity2.fishId))
+                            fishModel.toggle();
+                    });
+
+                } else {
+                    forwarder.sendLocationRequest(fishEntity2.location, fishId);
+                }
+                return true;
+            }
+            return false;
+
+        })))
+            fishies.stream().forEach(fishModel -> {
+                if (fishModel.getId().equals(fishId))
+                    fishModel.toggle();
+            });
+    }
+
     synchronized void locateFishGlobally(String fishId) {
+
         if (!locateFishLocally(fishId)) {
             fishLocations.stream().forEach(fishEntity -> {
                 if (fishEntity.fishId.equals(fishId)) {
@@ -176,7 +213,6 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             pollIdle();
             sendSnapToken(globalSnapshot);
         }
-
     }
 
     synchronized void onRegistration(String id) {
@@ -193,9 +229,29 @@ public class TankModel extends Observable implements Iterable<FishModel> {
                     rand.nextBoolean() ? Direction.LEFT : Direction.RIGHT);
 
             fishLocations.add(new FishEntity(fishId));
+            homeAgent.add(new FishEntity2(fishId));
 
             fishies.add(fish);
         }
+    }
+
+    synchronized void recieveNameResolutionResponse(NameResolutionResponse nameResolutionResponse) {
+        forwarder.sendLocationUpdate(nameResolutionResponse.getTankAddress(), nameResolutionResponse.getRequestId());
+    }
+
+    synchronized void recieveLocationUpdate(Message msg) {
+        LocationUpdate locationUpdate = (LocationUpdate) msg.getPayload();
+        updateHomeAgent(locationUpdate.getFishId(), msg.getSender());
+        locationUpdate.getFishId();
+    }
+
+    private synchronized void updateHomeAgent(String fishId, InetSocketAddress fishLocation) {
+        homeAgent.stream().forEach(fishEntity2 -> {
+            if (fishEntity2.fishId.equals(fishId)) {
+                fishEntity2.location = fishLocation;
+                return;
+            }
+        });
     }
 
     synchronized void receiveFish(InetSocketAddress sender, FishModel fish) {
@@ -207,6 +263,11 @@ public class TankModel extends Observable implements Iterable<FishModel> {
             else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(sender))
                 backup.addFish();
         }
+
+        if (fish.getTankId().equals(id))
+            updateHomeAgent(fish.getId(), null);
+        else
+            forwarder.sendNameResolutionRequest(fish.getTankId(), fish.getId());
 
         if (!fishLocations.stream().anyMatch(fishLocation -> {
             if (fishLocation.fishId.equals(fish.getId())) {
@@ -266,7 +327,6 @@ public class TankModel extends Observable implements Iterable<FishModel> {
 
             if (fish.hitsEdge()) {
                 if (token) {
-                    //update fish
                     if (fish.getDirection() == Direction.LEFT)
                         updateFishLocations(fish, FishLocation.LEFT);
                     else
