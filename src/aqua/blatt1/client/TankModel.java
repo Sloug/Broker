@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.FishModel;
 import aqua.blatt1.common.msgtypes.NeighborUpdate;
+import aqua.blatt1.common.msgtypes.RegisterResponse;
 import aqua.blatt1.common.msgtypes.SnapshotCollectionToken;
 import messaging.Message;
 
@@ -32,6 +33,7 @@ public class TankModel extends Observable implements Iterable<FishModel> {
     protected volatile int snapshot;
     protected volatile boolean snapshotFlag = false;
     private static final List<FishEntity> fishLocations = new ArrayList<>();
+    private boolean first = true;
 
     public TankModel(ClientCommunicator.ClientForwarder forwarder) {
         this.fishies = Collections.newSetFromMap(new ConcurrentHashMap<FishModel, Boolean>());
@@ -179,9 +181,20 @@ public class TankModel extends Observable implements Iterable<FishModel> {
 
     }
 
-    synchronized void onRegistration(String id) {
-        this.id = id;
-        newFish(WIDTH - FishModel.getXSize(), rand.nextInt(HEIGHT - FishModel.getYSize()));
+    synchronized void onRegistration(RegisterResponse message) {
+        this.id = message.getId();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Rereg Client");
+                forwarder.register();
+            }
+        }, 2000);
+        if (first) {
+            first = false;
+            newFish(WIDTH - FishModel.getXSize(), rand.nextInt(HEIGHT - FishModel.getYSize()));
+        }
+
     }
 
     public synchronized void newFish(int x, int y) {
