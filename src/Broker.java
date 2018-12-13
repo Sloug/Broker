@@ -1,3 +1,4 @@
+import SecureMessaging.SecureEndpoint;
 import aqua.blatt1.broker.ClientCollection;
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.msgtypes.*;
@@ -13,7 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.swing.JOptionPane;
 
 public class Broker {
-    private Endpoint endpoint;
+    private SecureEndpoint endpoint;
     private volatile ClientCollection clientCollection;
     private volatile Integer registerCounter;
     private volatile boolean stopRequested = false;
@@ -165,7 +166,7 @@ public class Broker {
     }
 
     public Broker(int port) {
-        this.endpoint = new Endpoint(port);
+        this.endpoint = new SecureEndpoint(port);
         this.clientCollection = new ClientCollection();
         this.registerCounter = 0;
     }
