@@ -8,33 +8,33 @@ public final class NeighborUpdate implements Serializable {
     private final Neighbors neighbors;
 
     public static final class Neighbors implements Serializable {
-        public Neighbors(InetSocketAddress leftNeighbor, InetSocketAddress rightNeighbor) {
+        public Neighbors(String leftNeighbor, String rightNeighbor) {
             this.leftNeighbor = leftNeighbor;
             this.rightNeighbor = rightNeighbor;
         }
 
-        private final InetSocketAddress leftNeighbor;
-        private final InetSocketAddress rightNeighbor;
+        private final String leftNeighbor;
+        private final String rightNeighbor;
 
-        public InetSocketAddress getLeftNeighbor() {
+        public String getLeftNeighbor() {
             return leftNeighbor;
         }
 
-        public InetSocketAddress getRightNeighbor() {
+        public String getRightNeighbor() {
             return rightNeighbor;
         }
 
-        public boolean isRightNeighbor(InetSocketAddress toCompare) {
+        public boolean isRightNeighbor(String toCompare) {
             return rightNeighbor.equals(toCompare);
         }
 
-        public boolean isLeftNeighbor(InetSocketAddress toCompare) {
+        public boolean isLeftNeighbor(String toCompare) {
             return leftNeighbor.equals(toCompare);
         }
     }
 
 
-    public NeighborUpdate(InetSocketAddress leftNeighbor, InetSocketAddress rightNeighbor) {
+    public NeighborUpdate(String leftNeighbor, String rightNeighbor) {
         this.neighbors = new Neighbors(leftNeighbor, rightNeighbor);
     }
 
