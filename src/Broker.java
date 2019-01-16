@@ -65,7 +65,7 @@ public class Broker implements AquaBroker {
         String cliname = ("Sloug_" + registerCounter);
         clientCollection.add(cliname, stub);
         lock.writeLock().unlock();
-        aquaClient.registeResponse(cliname);
+//        aquaClient.registeResponse(cliname);
         informNeighbors(stub, false);
         synchronized (firstRegister) {
             if (firstRegister) {
@@ -77,8 +77,8 @@ public class Broker implements AquaBroker {
     }
 
     @Override
-    public void deregister(String stub, String id) throws RemoteException {
-        informNeighbors(stub, true);
+    public void deregister(String id) throws RemoteException {
+        informNeighbors(id, true);
 
         lock.writeLock().lock();
         clientCollection.remove(clientCollection.indexOf(id));
@@ -101,20 +101,23 @@ public class Broker implements AquaBroker {
             lock.readLock().lock();
             String stubLeft = (String) clientCollection.getLeftNeighorOf(clientCollection.indexOf(stub));
             AquaClient aquaClient = getAquaClient(stubLeft);
-            aquaClient.handoff(fishModel);
+            aquaClient.handoff(stub, fishModel);
             lock.readLock().unlock();
         } else {
             lock.readLock().lock();
             String stubRight = (String) clientCollection.getRightNeighorOf(clientCollection.indexOf(stub));
             AquaClient aquaClient = getAquaClient(stubRight);
-            aquaClient.handoff(fishModel);
+            aquaClient.handoff(stub, fishModel);
             lock.readLock().unlock();
         }
     }
 
     @Override
-    public void nameResolutionResponse(String tankId, String requestId) throws RemoteException {
-
+    public String nameResolutionResponse(String tankId) throws RemoteException {
+        return clientCollection.getClient(clientCollection.indexOf(tankId;
+//            endpoint.send(reciever, new NameResolutionResponse((InetSocketAddress) clientCollection
+//                    .getClient(clientCollection.indexOf(nameResolutionRequest.getTankId())), nameResolutionRequest
+//                    .getRequestId()));
     }
 
     private Neighbors getNeighborsOfClient(String client) {

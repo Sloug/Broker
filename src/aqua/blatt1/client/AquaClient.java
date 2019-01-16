@@ -7,7 +7,7 @@ import java.rmi.Remote;
 
 public interface AquaClient extends Remote {
 
-    public void handoff(FishModel fish);
+    public void handoff(String stub, FishModel fish);
 
     public void updateNeighbor(NeighborUpdate.Neighbors neighbors);
 

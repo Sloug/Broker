@@ -1,8 +1,10 @@
 package aqua.blatt1.client;
 
 import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import aqua.blatt1.broker.AquaBroker;
 import aqua.blatt1.common.Direction;
 import aqua.blatt1.common.FishModel;
+import aqua.blatt1.common.Properties;
 import aqua.blatt1.common.msgtypes.*;
 import messaging.Message;
 
@@ -55,8 +58,35 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
     }
 
     @Override
-    public void handoff(FishModel fish) {
+    public void handoff(String stub, FishModel fish) {
+        if (mode != Mode.IDLE) {
+            if (mode == Mode.BOTH)
+                backup.addFish();
+            else if (mode == Mode.RIGHT && neighbors.isRightNeighbor(stub))
+                backup.addFish();
+            else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(stub))
+                backup.addFish();
+        }
 
+        if (fish.getTankId().equals(id))
+            updateHomeAgent(fish.getId(), null);
+        else {
+            broker.nameResolutionRequest(fish.getTankId());
+            AquaClient client = getAquaClient(stub);
+            client.locationUpdate(fish.getId());
+//            forwarder.sendNameResolutionRequest(fish.getTankId(), fish.getId());
+        }
+
+        if (!fishLocations.stream().anyMatch(fishLocation -> {
+            if (fishLocation.fishId.equals(fish.getId())) {
+                fishLocation.fishLocation = FishLocation.HERE;
+                return true;
+            }
+            return false;
+        }))
+            fishLocations.add(new FishEntity(fish.getId()));
+        fish.setToStart();
+        fishies.add(fish);
     }
 
     @Override
@@ -305,9 +335,10 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
         }
     }
 
-    synchronized void recieveNameResolutionResponse(NameResolutionResponse nameResolutionResponse) {
-        AquaClient client
-        forwarder.sendLocationUpdate(nameResolutionResponse.getTankAddress(), nameResolutionResponse.getRequestId());
+    synchronized void recieveNameResolutionResponse(String stub, String fishId) {
+        AquaClient client = getAquaClient(stub);
+        client.locationUpdate(fishId);
+//        forwarder.sendLocationUpdate(nameResolutionResponse.getTankAddress(), nameResolutionResponse.getRequestId());
     }
 
     synchronized void recieveLocationUpdate(Message msg) {
@@ -325,20 +356,24 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
         });
     }
 
-    synchronized void receiveFish(InetSocketAddress sender, FishModel fish) {
+    synchronized void receiveFish(String stub, FishModel fish) {
         if (mode != Mode.IDLE) {
             if (mode == Mode.BOTH)
                 backup.addFish();
-            else if (mode == Mode.RIGHT && neighbors.isRightNeighbor(sender))
+            else if (mode == Mode.RIGHT && neighbors.isRightNeighbor(stub))
                 backup.addFish();
-            else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(sender))
+            else if (mode == Mode.LEFT && neighbors.isLeftNeighbor(stub))
                 backup.addFish();
         }
 
         if (fish.getTankId().equals(id))
             updateHomeAgent(fish.getId(), null);
-        else
-            forwarder.sendNameResolutionRequest(fish.getTankId(), fish.getId());
+        else {
+                broker.nameResolutionRequest(fish.getTankId());
+            AquaClient client = getAquaClient(stub);
+            client.locationUpdate(fish.getId());
+//            forwarder.sendNameResolutionRequest(fish.getTankId(), fish.getId());
+        }
 
         if (!fishLocations.stream().anyMatch(fishLocation -> {
             if (fishLocation.fishId.equals(fish.getId())) {
@@ -402,7 +437,14 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
                         updateFishLocations(fish, FishLocation.LEFT);
                     else
                         updateFishLocations(fish, FishLocation.RIGHT);
-                    forwarder.handOff(fish, neighbors);
+
+                    Direction direction = fish.getDirection();
+                    String receiverStub = (direction == Direction.LEFT) ?
+                            neighbors.getLeftNeighbor() : neighbors.getRightNeighbor();
+                    AquaClient client = getAquaClient(receiverStub);
+                    client.handoff(fish);
+                    endpoint.send(receiver, new HandoffRequest(fish));
+//                    forwarder.handOff(fish, neighbors);
                 } else
                     fish.reverse();
             }
@@ -420,8 +462,17 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
     }
 
     protected void run() {
-        br
-        forwarder.register();
+        String name = "";
+        try {
+            Registry registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            AquaClient stub = (AquaClient) UnicastRemoteObject.exportObject(new TankModel(broker), 0);
+            registry.rebind(name, stub);
+            String a = broker.registerRequest(name);
+        } catch (RemoteException e) {
+            System.exit(1);
+        }
+
+//        forwarder.register();
 
         try {
             while (!Thread.currentThread().isInterrupted()) {
@@ -434,7 +485,12 @@ public class TankModel extends Observable implements Iterable<FishModel> ,AquaCl
     }
 
     public synchronized void finish() {
-        forwarder.deregister(id);
+        try {
+            broker.deregister(id, id);
+        } catch (RemoteException e) {
+            System.exit(1);
+        }
+//        forwarder.deregister(id);
     }
 
 }
